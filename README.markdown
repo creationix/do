@@ -21,7 +21,7 @@ A continuable is a function that returns a curried version of itself instead of 
       puts("the result is " + result);
     }, function (error) {
       throw error;
-    })
+    });
 
 Since this style is extremely simple (doesn't require an external library like process.Promise to use), and fairly powerful.  The initial function can have variable arguments and the continuable itself is portable until it's invoked by attacking callbacks.
 
@@ -44,7 +44,7 @@ Takes an array of actions and runs them all in parallel. You can either pass in 
       Do.read(__filename)
     )(function (passwd, self) {
       // Do something
-    }, error_handler)
+    }, error_handler);
 
     // Single argument
     var actions = [
@@ -53,7 +53,7 @@ Takes an array of actions and runs them all in parallel. You can either pass in 
     ];
     Do.parallel(actions)(function (results) {
       // Do something
-    }, error_handler)
+    }, error_handler);
  
 ### Do.chain(actions) {...}
 
@@ -63,30 +63,30 @@ Chains together several actions feeding the output of the first to the input of 
 
     // Multiple arguments
     Do.chain(
-      Do.read(__filename)),
+      Do.read(__filename),
       function (text) { 
-        return Do.save("newfile", text)
+        return Do.save("newfile", text);
       },
       function () {
-        return Do.stat("newfile")
+        return Do.stat("newfile");
       }
     )(function (stat) {
       // Do something
-    }, error_handler)
+    }, error_handler);
 
     // Single argument
     var actions = [
-      Do.read(__filename)),
+      Do.read(__filename),
       function (text) { 
-        return Do.save("newfile", text)
+        return Do.save("newfile", text);
       },
       function () {
-        return Do.stat("newfile")
+        return Do.stat("newfile");
       }
     ];
     Do.chain(actions)(function (stat) {
       // Do something
-    }, error_handler)
+    }, error_handler);
 
 ### Do.map(array, fn) {...}
 
@@ -102,7 +102,7 @@ Takes an array and does an array map over it using the async callback `fn`. The 
     }
     Do.map(files, load_file)(function (contents) {
       // Do something
-    }, error_handler)
+    }, error_handler);
 
 ### Do.filter(array, fn) {...}
 
@@ -118,7 +118,7 @@ Takes an array and does an array filter over it using the async callback `fn`. T
     }
     Do.filter(files, is_file)(function (filtered_files) {
       // Do something
-    }, error_handler)
+    }, error_handler);
 
 ### Do.filter_map(array, fn) {...}
 
@@ -140,8 +140,45 @@ The signature of `fn` is `function fn(item, callback, errback)`
     }
     Do.filter_map(files, check_and_load)(function (filtered_files_with_data) {
       // Do something
-    }, error_handler)
+    }, error_handler);
 
+## Wrappers to existing APIs
+
+It's possible to use this library with existing promise or callback based apis, but it's easier is to have some common ones pre-wrapped in the continuable style.
+
+For example:
+
+    var File = require('file');
+    Do.parallel(
+      function (callback, errback) {
+        File.read("data.json").addCallback(callback).addErrback(errback);
+      },
+      function (callback, errback) {
+        File.read("people.json").addCallback(callback).addErrback(errback);
+      }
+    )(function (data, people) {
+      // Do something
+    });
+
+VS:
+
+    var FS = require('do/fs');
+    Do.parallel(
+      FS.read("data.json"),
+      FS.read("people.json")
+    )(function (data, people) {
+      // Do something
+    });
+
+### `fs` FileSystem wrapper
+
+There isn't much yet, but for sake of the examples, I wrapped the following four functions into the `do/fs` module:
+
+ - `fs.read(filename) {...}` - Reads a file into memory and passes the contents to `callback`.
+ - `fs.write(filename, data) {...}` - Writes data to filename.
+ - `fs.readdir(path) {...}` - Gets a listing of all files and folders in a directory and passes them to callback.
+ - `fs.stat(filename) {...}` - Gives a stat object describing properties of a file.
+ 
 ## Future TODOs
 
  - Make `map`, `filter`, and `filter_map` accept regular continuables for `fn` in addition to the current signature.  This will allow for a nice shortcut where `fn` is something simple like a `fs.read`.
