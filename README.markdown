@@ -23,11 +23,14 @@ A continuable is a function that returns a curried version of itself instead of 
       throw error;
     });
 
-Since this style is extremely simple (doesn't require an external library like process.Promise to use), and fairly powerful.  The initial function can have variable arguments and the continuable itself is portable until it's invoked by attacking callbacks.
+This style is extremely simple (doesn't require an external library like process.Promise to use), and is fairly powerful.
 
-## Higher order operations
+ - The initial function can have variable arguments.
+ - The continuable itself is portable until it's invoked by attaching callbacks.
 
-The `Do` library makes doing higher-level abstractions easy.  All of these helpers are themselves continuables so you can attach callbacks by calling the returned curried function.
+## Higher-level operations
+
+The `Do` library makes doing higher-level abstractions easy.  All of these helpers are themselves continuables so you can attach callbacks by calling the returned, curried function.
 
 ### Do.parallel(actions) {...}
 
