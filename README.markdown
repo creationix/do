@@ -151,13 +151,13 @@ It's possible to use this library with existing promise or callback based apis, 
 
 For example:
 
-    var File = require('file');
+    var fs = require('fs');
     Do.parallel(
       function (callback, errback) {
-        File.read("data.json").addCallback(callback).addErrback(errback);
+        fs.readFile("data.json").addCallback(callback).addErrback(errback);
       },
       function (callback, errback) {
-        File.read("people.json").addCallback(callback).addErrback(errback);
+        fs.readFile("people.json").addCallback(callback).addErrback(errback);
       }
     )(function (data, people) {
       // Do something
@@ -165,25 +165,19 @@ For example:
 
 VS:
 
-    var FS = require('do/fs');
+    var fs = require('do/fs');
     Do.parallel(
-      FS.read("data.json"),
-      FS.read("people.json")
+      fs.readFile("data.json"),
+      fs.readFile("people.json")
     )(function (data, people) {
       // Do something
     });
 
 ### `fs` FileSystem wrapper
 
-There isn't much yet, but for sake of the examples, I wrapped the following four functions into the `do/fs` module:
-
- - `fs.read(filename) {...}` - Reads a file into memory and passes the contents to `callback`.
- - `fs.write(filename, data) {...}` - Writes data to filename.
- - `fs.readdir(path) {...}` - Gets a listing of all files and folders in a directory and passes them to callback.
- - `fs.stat(filename) {...}` - Gives a stat object describing properties of a file.
+All the promise returning functions of the 'fs' module are wrapped in the 'do/fs' module.
  
 ## Future TODOs
 
  - Make `map`, `filter`, and `filter_map` accept regular continuables for `fn` in addition to the current signature.  This will allow for a nice shortcut where `fn` is something simple like a `fs.read`.
- - Wrap more of the commonly used node libraries to continuable style.
  - Make some sort of helper that makes it easy to call any function regardless of it's sync or async status.  This is tricky vs. promises since our return value is just a regular function, not an instance of something.

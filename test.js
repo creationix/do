@@ -20,24 +20,24 @@ function slow_error() { return function (callback, errback) {
 }}
 
 Do.parallel(
-  fs.read(__filename),
+  fs.readFile(__filename),
   slow_error()
 )(function (bad, good) {
   puts("Good: " + inspect(arguments));
 }, show_error);
 
 Do.parallel(
-  fs.read(__filename)
+  fs.readFile(__filename)
 )(function (bad, good) {
   puts("Good: " + inspect(arguments));
 }, show_error);
 
 Do.parallel(
   Do.parallel([
-    fs.read(__filename),
-    fs.read(__filename)
+    fs.readFile(__filename),
+    fs.readFile(__filename)
   ]),
-  fs.read(__filename)
+  fs.readFile(__filename)
 )(function () {
   puts("Good: " + inspect(arguments));
 }, show_error);
@@ -51,7 +51,7 @@ function only_files(filename, callback, errback) {
 
 // Filter that replaces a filename with the pair of filename and content
 function marked_read(filename, callback, errback) {
-  fs.read(filename)(function (data) {
+  fs.readFile(filename)(function (data) {
     if (data.length < 10) {
       errback(new Error(filename + " is too small!"));
     } else {
@@ -101,7 +101,7 @@ function get_keywords(text) { return function (callback, errback) {
 }}
 
 Do.chain(
-  fs.read(__filename),
+  fs.readFile(__filename),
   get_keywords
 )(debug, show_error);
 
