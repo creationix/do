@@ -93,10 +93,11 @@ Chains together several actions feeding the output of the first to the input of 
 
 ### Do.map(array, fn) {...}
 
-Takes an array and does an array map over it using the async callback `fn`. The signature of `fn` is `function fn(item, callback, errback)`
+Takes an array and does an array map over it using the async callback `fn`. The signature of `fn` is `function fn(item, callback, errback)` or any regular continuable.
 
 **Example:**
 
+    // Direct callback filter
     var files = ['users.json', 'pages.json', 'products.json'];
     function load_file(filename, callback, errback) {
       fs.read(filename)(function (data) {
@@ -106,13 +107,20 @@ Takes an array and does an array map over it using the async callback `fn`. The 
     Do.map(files, load_file)(function (contents) {
       // Do something
     }, error_handler);
+    
+    // continuable based filter
+    var files = ['users.json', 'pages.json', 'products.json'];
+    Do.map(files, fs.read)(function (contents) {
+      // Do something
+    }, error_handler);
 
 ### Do.filter(array, fn) {...}
 
-Takes an array and does an array filter over it using the async callback `fn`. The signature of `fn` is `function fn(item, callback, errback)`
+Takes an array and does an array filter over it using the async callback `fn`. The signature of `fn` is `function fn(item, callback, errback)` or any regular continuable.
 
 **Example:**
 
+    // Direct callback filter
     var files = ['users.json', 'pages.json', 'products.json'];
     function is_file(filename, callback, errback) {
       fs.stat(filename)(function (stat) {
@@ -123,14 +131,26 @@ Takes an array and does an array filter over it using the async callback `fn`. T
       // Do something
     }, error_handler);
 
+    // Continuable based filter
+    var files = ['users.json', 'pages.json', 'products.json'];
+    function is_file(filename) { return function (callback, errback) {
+      fs.stat(filename)(function (stat) {
+        callback(stat.isFile());
+      }, errback);
+    }}
+    Do.filter(files, is_file)(function (filtered_files) {
+      // Do something
+    }, error_handler);
+
 ### Do.filter_map(array, fn) {...}
 
 Takes an array and does a combined filter and map over it.  If the result
 of an item is undefined, then it's filtered out, otherwise it's mapped in.
-The signature of `fn` is `function fn(item, callback, errback)`
+The signature of `fn` is `function fn(item, callback, errback)` or any regular continuable.
 
 **Example:**
 
+    // Direct callback filter
     var files = ['users.json', 'pages.json', 'products.json'];
     function check_and_load(filename, callback, errback) {
       fs.stat(filename)(function (stat) {
@@ -141,6 +161,21 @@ The signature of `fn` is `function fn(item, callback, errback)`
         }
       }, errback);
     }
+    Do.filter_map(files, check_and_load)(function (filtered_files_with_data) {
+      // Do something
+    }, error_handler);
+
+    // Continuable based filter
+    var files = ['users.json', 'pages.json', 'products.json'];
+    function check_and_load(filename) { return function (callback, errback) {
+      fs.stat(filename)(function (stat) {
+        if (stat.isFile()) {
+          load_file(filename, callback, errback);
+        } else {
+          callback();
+        }
+      }, errback);
+    }}
     Do.filter_map(files, check_and_load)(function (filtered_files_with_data) {
       // Do something
     }, error_handler);
@@ -179,5 +214,7 @@ All the promise returning functions of the 'fs' module are wrapped in the 'do/fs
  
 ## Future TODOs
 
- - Make `map`, `filter`, and `filter_map` accept regular continuables for `fn` in addition to the current signature.  This will allow for a nice shortcut where `fn` is something simple like a `fs.read`.
  - Make some sort of helper that makes it easy to call any function regardless of it's sync or async status.  This is tricky vs. promises since our return value is just a regular function, not an instance of something.
+ - Add unit tests!
+ - Package as commonjs module too, except for the "do/fs" submodule this doesn't depend on node specific stuff.
+ - Write submodules to give some functionality to browser code too. (ajax, web services, etc...)

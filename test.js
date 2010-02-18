@@ -10,7 +10,6 @@ function show_error(trace) {
   puts("ERROR: " + inspect(trace));
 }
 
-
 // A very slow error to make sure that no success message is emitted if there
 // is an error anywhere.
 function slow_error() { return function (callback, errback) {
@@ -111,3 +110,22 @@ Do.chain(
     return Do.filter_map(filenames, check_and_load);
   }
 )(debug, show_error);
+
+// Use the new continuable style map
+var files = ["test.js", "README.markdown"];
+Do.map(files, fs.readFile)(debug, show_error);
+
+function safe_load(filename) { return function (callback, errback) {
+  fs.stat(filename)(function (stat) {
+    if (stat.isFile()) {
+      fs.readFile(filename)(callback, errback)
+    } else {
+      callback();
+    }
+  }, errback);
+}}
+
+// Use filter_map with new continuable based filter
+fs.readdir(__dirname)(function (list) {
+  Do.filter_map(list, safe_load)(debug, show_error);
+}, show_error);
