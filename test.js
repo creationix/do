@@ -1,7 +1,9 @@
 // This file is just a mess of examples of how to use the library.
 
 var Do = require('./lib/do');
-var fs = require('./lib/do/fs')
+var fs = Do.convert(require('fs'), ["readFile", "stat", "readdir"]);
+var http = Do.convert(require('http'), ['cat']);
+
 process.mixin(require('sys'));
 function debug(message, showHidden) {
   puts(inspect(message, showHidden));
