@@ -180,41 +180,28 @@ The signature of `fn` is `function fn(item, callback, errback)` or any regular c
       // Do something
     }, error_handler);
 
-## Wrappers to existing APIs
+## Using with node libraries
 
-It's possible to use this library with existing promise or callback based apis, but it's easier is to have some common ones pre-wrapped in the continuable style.
+Do has a super nifty `Do.convert` function that takes a library and converts it to use Do style continuables.  For example, if you wanted to use `fs.fileRead` and `fs.fileWrite`, then you would do this:
 
-For example:
+    var fs = Do.convert(require('fs'), ['readFile', 'writeFile']);
 
-    var fs = require('fs');
-    Do.parallel(
-      function (callback, errback) {
-        fs.readFile("data.json").addCallback(callback).addErrback(errback);
-      },
-      function (callback, errback) {
-        fs.readFile("people.json").addCallback(callback).addErrback(errback);
-      }
-    )(function (data, people) {
-      // Do something
-    });
+Do will give you a copy of `fs` that has `readFile` and `writeFile` converted to Do style.  It's that easy!
 
-VS:
+### For library writers
 
-    var fs = require('do/fs');
-    Do.parallel(
-      fs.readFile("data.json"),
-      fs.readFile("people.json")
-    )(function (data, people) {
-      // Do something
-    });
+All async functions in node follow a common interface:
 
-### `fs` FileSystem wrapper
+    method(arg1, arg2, arg3, ..., callback)
 
-All the promise returning functions of the 'fs' module are wrapped in the 'do/fs' module.
- 
+Where `callback` is of the form:
+
+    callback(err, result1, result2, ...)
+
+This is done to keep node simple and to allow for interoperability between the various async abstractions like Do continuables and CommonJS promises.
+
+If you're writing a library, make sure to export all your async functions following the node interface.  Then anyone using your library can know what format to expect.
+
 ## Future TODOs
 
  - Make some sort of helper that makes it easy to call any function regardless of it's sync or async status.  This is tricky vs. promises since our return value is just a regular function, not an instance of something.
- - Add unit tests!
- - Package as commonjs module too, except for the "do/fs" submodule this doesn't depend on node specific stuff.
- - Write submodules to give some functionality to browser code too. (ajax, web services, etc...)
