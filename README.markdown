@@ -1,8 +1,8 @@
 # `Do` it!
 
-`Do` is a library that adds higher level abstraction to actions and continuables.  What I mean by actions and continuables is the following:
+`Do` is a library that adds higher level abstraction and continuables.  What I mean by a continuable is explained by the following:
 
-### Actions and Continuables
+### Continuables
 
     function divide(a, b) { return function (callback, errback) {
       // the timeout it to prove that we're working asynchronously
@@ -15,7 +15,7 @@
       });
     }}
 
-An "action" is an async function that returns a curried version of itself (Implemented using a closure and a new function).  This curried version of the function is the "continuable."  The last two arguments are the callback and the errback.  So a continuable won't execute until you attach callbacks to it:
+`Do` expects async functions to not require the callback in the initial invocation, but instead return a continuable which can then be called with the `callback` and `errback`.  This is done by manually currying the function and the "continuable" in the partially applied version of the function.  The body of the function won't be executed until you finish the application and attach a callback.
 
     divide(100, 10)(function (result) {
       puts("the result is " + result);
@@ -23,7 +23,7 @@ An "action" is an async function that returns a curried version of itself (Imple
       throw error;
     });
 
-This style is extremely simple (doesn't require an external library like process.Promise to use), and is fairly powerful.
+This style is extremely simple (doesn't require an external library like promises to use), and is fairly powerful.
 
  - The initial function can have variable arguments.
  - The continuable itself is portable until it's invoked by attaching callbacks.
