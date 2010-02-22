@@ -1,8 +1,8 @@
 # `Do` it!
 
-`Do` is a library that adds higher level abstraction to continuables.  What I mean by a continuable is the following:
+`Do` is a library that adds higher level abstraction to actions and continuables.  What I mean by actions and continuables is the following:
 
-## Continuables
+### Actions and Continuables
 
     function divide(a, b) { return function (callback, errback) {
       // the timeout it to prove that we're working asynchronously
@@ -12,10 +12,10 @@
         } else {
           callback(a / b);
         }
-      }); 
+      });
     }}
 
-A continuable is a function that returns a curried version of itself instead of a result directly.  The last two arguments are the callback and the errback.  So a continuable won't execute until you attach callbacks to it:
+An "action" is an async function that returns a curried version of itself (Implemented using a closure and a new function).  This curried version of the function is the "continuable."  The last two arguments are the callback and the errback.  So a continuable won't execute until you attach callbacks to it:
 
     divide(100, 10)(function (result) {
       puts("the result is " + result);
@@ -182,7 +182,7 @@ The signature of `fn` is `function fn(item, callback, errback)` or any regular c
 
 ## Using with node libraries
 
-Do has a super nifty `Do.convert` function that takes a library and converts it to use Do style continuables.  For example, if you wanted to use `fs.fileRead` and `fs.fileWrite`, then you would do this:
+Do has a super nifty `Do.convert` function that takes a library and converts it to use Do style continuables.  For example, if you wanted to use `fs.readFile` and `fs.writeFile`, then you would do this:
 
     var fs = Do.convert(require('fs'), ['readFile', 'writeFile']);
 
