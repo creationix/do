@@ -8,7 +8,7 @@ process.mixin(require('sys'));
 function debug(message, showHidden) {
   puts(inspect(message, showHidden));
 }
-function show_error(trace) {
+function showError(trace) {
   puts("ERROR: " + inspect(trace));
 }
 
@@ -25,13 +25,13 @@ Do.parallel(
   slow_error()
 )(function (bad, good) {
   puts("Good: " + inspect(arguments));
-}, show_error);
+}, showError);
 
 Do.parallel(
   fs.readFile(__filename)
 )(function (bad, good) {
   puts("Good: " + inspect(arguments));
-}, show_error);
+}, showError);
 
 Do.parallel(
   Do.parallel([
@@ -41,7 +41,7 @@ Do.parallel(
   fs.readFile(__filename)
 )(function () {
   puts("Good: " + inspect(arguments));
-}, show_error);
+}, showError);
 
 // Filter callback that only let's files through by using stat
 function only_files(filename, callback, errback) {
@@ -78,14 +78,14 @@ function loaddir(path) { return function (callback, errback) {
     }, errback);
   }, errback);
 }}
-loaddir(__dirname)(debug, show_error);
+loaddir(__dirname)(debug, showError);
 
 function fast_loaddir(path) { return function (callback, errback) {
   fs.readdir(path)(function (filenames) {
-    Do.filter_map(filenames, check_and_load)(callback, errback);
+    Do.filterMap(filenames, check_and_load)(callback, errback);
   }, errback);
 }}
-fast_loaddir(__dirname)(debug, show_error);
+fast_loaddir(__dirname)(debug, showError);
 
 function get_keywords(text) { return function (callback, errback) {
   setTimeout(function () {
@@ -104,18 +104,18 @@ function get_keywords(text) { return function (callback, errback) {
 Do.chain(
   fs.readFile(__filename),
   get_keywords
-)(debug, show_error);
+)(debug, showError);
 
 Do.chain(
   fs.readdir(__dirname),
   function (filenames) {
-    return Do.filter_map(filenames, check_and_load);
+    return Do.filterMap(filenames, check_and_load);
   }
-)(debug, show_error);
+)(debug, showError);
 
 // Use the new continuable style map
 var files = ["test.js", "README.markdown"];
-Do.map(files, fs.readFile)(debug, show_error);
+Do.map(files, fs.readFile)(debug, showError);
 
 function safe_load(filename) { return function (callback, errback) {
   fs.stat(filename)(function (stat) {
@@ -127,7 +127,7 @@ function safe_load(filename) { return function (callback, errback) {
   }, errback);
 }}
 
-// Use filter_map with new continuable based filter
+// Use filterMap with new continuable based filter
 fs.readdir(__dirname)(function (list) {
-  Do.filter_map(list, safe_load)(debug, show_error);
-}, show_error);
+  Do.filterMap(list, safe_load)(debug, showError);
+}, showError);

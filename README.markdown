@@ -5,8 +5,8 @@
 ### Continuables
 
     function divide(a, b) { return function (callback, errback) {
-      // the timeout it to prove that we're working asynchronously
-      setTimeout(function () {
+      // Use nextTick to prove that we're working asynchronously
+      process.nextTick(function () {
         if (b === 0) {
           errback(new Error("Cannot divide by 0"));
         } else {
@@ -47,7 +47,7 @@ Takes an array of actions and runs them all in parallel. You can either pass in 
       Do.read(__filename)
     )(function (passwd, self) {
       // Do something
-    }, error_handler);
+    }, errorHandler);
 
     // Single argument
     var actions = [
@@ -56,7 +56,7 @@ Takes an array of actions and runs them all in parallel. You can either pass in 
     ];
     Do.parallel(actions)(function (results) {
       // Do something
-    }, error_handler);
+    }, errorHandler);
  
 ### Do.chain(actions) {...}
 
@@ -75,7 +75,7 @@ Chains together several actions feeding the output of the first to the input of 
       }
     )(function (stat) {
       // Do something
-    }, error_handler);
+    }, errorHandler);
 
     // Single argument
     var actions = [
@@ -89,7 +89,7 @@ Chains together several actions feeding the output of the first to the input of 
     ];
     Do.chain(actions)(function (stat) {
       // Do something
-    }, error_handler);
+    }, errorHandler);
 
 ### Do.map(array, fn) {...}
 
@@ -99,20 +99,20 @@ Takes an array and does an array map over it using the async callback `fn`. The 
 
     // Direct callback filter
     var files = ['users.json', 'pages.json', 'products.json'];
-    function load_file(filename, callback, errback) {
+    function loadFile(filename, callback, errback) {
       fs.read(filename)(function (data) {
         callback([filename, data]);
       }, errback);
     }
-    Do.map(files, load_file)(function (contents) {
+    Do.map(files, loadFile)(function (contents) {
       // Do something
-    }, error_handler);
+    }, errorHandler);
     
     // continuable based filter
     var files = ['users.json', 'pages.json', 'products.json'];
     Do.map(files, fs.read)(function (contents) {
       // Do something
-    }, error_handler);
+    }, errorHandler);
 
 ### Do.filter(array, fn) {...}
 
@@ -122,27 +122,27 @@ Takes an array and does an array filter over it using the async callback `fn`. T
 
     // Direct callback filter
     var files = ['users.json', 'pages.json', 'products.json'];
-    function is_file(filename, callback, errback) {
+    function isFile(filename, callback, errback) {
       fs.stat(filename)(function (stat) {
         callback(stat.isFile());
       }, errback);
     }
-    Do.filter(files, is_file)(function (filtered_files) {
+    Do.filter(files, isFile)(function (filtered_files) {
       // Do something
-    }, error_handler);
+    }, errorHandler);
 
     // Continuable based filter
     var files = ['users.json', 'pages.json', 'products.json'];
-    function is_file(filename) { return function (callback, errback) {
+    function isFile(filename) { return function (callback, errback) {
       fs.stat(filename)(function (stat) {
         callback(stat.isFile());
       }, errback);
     }}
-    Do.filter(files, is_file)(function (filtered_files) {
+    Do.filter(files, isFile)(function (filtered_files) {
       // Do something
-    }, error_handler);
+    }, errorHandler);
 
-### Do.filter_map(array, fn) {...}
+### Do.filterMap(array, fn) {...}
 
 Takes an array and does a combined filter and map over it.  If the result
 of an item is undefined, then it's filtered out, otherwise it's mapped in.
@@ -155,30 +155,30 @@ The signature of `fn` is `function fn(item, callback, errback)` or any regular c
     function check_and_load(filename, callback, errback) {
       fs.stat(filename)(function (stat) {
         if (stat.isFile()) {
-          load_file(filename, callback, errback);
+          loadFile(filename, callback, errback);
         } else {
           callback();
         }
       }, errback);
     }
-    Do.filter_map(files, check_and_load)(function (filtered_files_with_data) {
+    Do.filterMap(files, check_and_load)(function (filtered_files_with_data) {
       // Do something
-    }, error_handler);
+    }, errorHandler);
 
     // Continuable based filter
     var files = ['users.json', 'pages.json', 'products.json'];
     function check_and_load(filename) { return function (callback, errback) {
       fs.stat(filename)(function (stat) {
         if (stat.isFile()) {
-          load_file(filename, callback, errback);
+          loadFile(filename, callback, errback);
         } else {
           callback();
         }
       }, errback);
     }}
-    Do.filter_map(files, check_and_load)(function (filtered_files_with_data) {
+    Do.filterMap(files, check_and_load)(function (filtered_files_with_data) {
       // Do something
-    }, error_handler);
+    }, errorHandler);
 
 ## Using with node libraries
 
