@@ -205,3 +205,9 @@ If you're writing a library, make sure to export all your async functions follow
 ## Future TODOs
 
  - Make some sort of helper that makes it easy to call any function regardless of it's sync or async status.  This is tricky vs. promises since our return value is just a regular function, not an instance of something.
+
+## License
+
+Do is [licensed][] under the [MIT license][].
+
+[MIT license]: http://creativecommons.org/licenses/MIT/
