@@ -3,13 +3,13 @@
 var Do = require('./lib/do');
 var fs = Do.convert(require('fs'), ["readFile", "stat", "readdir"]);
 var http = Do.convert(require('http'), ['cat']);
+var sys = require('sys');
 
-process.mixin(require('sys'));
 function debug(message, showHidden) {
-  puts(inspect(message, showHidden));
+  sys.error(sys.inspect(message, showHidden));
 }
 function showError(trace) {
-  puts("ERROR: " + inspect(trace));
+  sys.error("ERROR: " + sys.inspect(trace));
 }
 
 // A very slow error to make sure that no success message is emitted if there
@@ -24,13 +24,13 @@ Do.parallel(
   fs.readFile(__filename),
   slow_error()
 )(function (bad, good) {
-  puts("Good: " + inspect(arguments));
+  sys.puts("Good: " + sys.inspect(arguments));
 }, showError);
 
 Do.parallel(
   fs.readFile(__filename)
 )(function (bad, good) {
-  puts("Good: " + inspect(arguments));
+  sys.puts("Good: " + sys.inspect(arguments));
 }, showError);
 
 Do.parallel(
@@ -40,7 +40,7 @@ Do.parallel(
   ]),
   fs.readFile(__filename)
 )(function () {
-  puts("Good: " + inspect(arguments));
+  sys.puts("Good: " + sys.inspect(arguments));
 }, showError);
 
 // Filter callback that only let's files through by using stat
