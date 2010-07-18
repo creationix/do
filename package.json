@@ -1,0 +1,6 @@
+{ "name":       "do"
+, "version":    "0.0.2"
+, "author":     "Tim Caswell"
+, "engines":  [ "node" ]
+, "main":       "./lib/do"
+}
